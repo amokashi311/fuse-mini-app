@@ -70,6 +70,7 @@ function App() {
     try {
       // Get user data from Farcaster context
       const context = await sdk.context;
+      console.log('Farcaster user context:', context.user);
       const userData = context.user as { username?: string; pfp?: string };
       
       const newSubmission: Submission = {
