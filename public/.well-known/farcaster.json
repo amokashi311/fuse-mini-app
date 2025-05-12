@@ -4,9 +4,9 @@
   "image": "https://fuse.vercel.app/icon.png",
   "external_url": "https://fuse.vercel.app",
   "accountAssociation": {
-    "header": "eyJmaWQiOjU0NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2MWQwMEFENzYwNjhGOEQ0NzQwYzM1OEM4QzAzYUFFYjUxMGI1OTBEIn0",
-    "payload": "eyJkb21haW4iOiJmdXNlLW1pbmktYXBwLnZlcmNlbC5hcHAifQ==",
-    "signature": "MHg3NmRkOWVlMjE4OGEyMjliNzExZjUzOTkxYTc1NmEzMGZjNTA3NmE5OTU5OWJmOWFmYjYyMzAyZWQxMWQ2MWFmNTExYzlhYWVjNjQ3OWMzODcyMTI5MzA2YmJhYjdhMTE0MmRhMjA4MmNjNTM5MTJiY2MyMDRhMWFjZTY2NjE5OTFj"
+    "header": "eyJmaWQiOjE2NjcwLCJ0eXBlIjoiY3VzdG9keSIsImtleSI6IjB4ZEExODdlYzgyNGE5NkE3OTgwRDM5MDAxODE2MzJCZDA2ZjI4Njg3MyJ9",
+    "payload": "eyJkb21haW4iOiJmdXNlLW1pbmktYXBwLnZlcmNlbC5hcHAifQ",
+    "signature": "MHgxYWNiMWFmOGY2ZGRiNTc1ZjE1ZWYwN2I0ZTY4NDQwODNkYzA4ZGRmYTExODg0MTJkZjQyZDM2YjI0NzU1OGZlMmJhMjU2Njk1MTkwZjNmMGY3YjljZTcxMDM3ODYzMmUwMDU2MzcwNzZhN2FhNGI1M2NhYTU0Zjk2YTU5NTc2YzFi"
   },
   "frame": {
     "version": "1",
