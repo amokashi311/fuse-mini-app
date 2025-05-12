@@ -1,56 +1,50 @@
-# Farcaster Mini App - NFT Mint
+# Dare Challenge - Farcaster Mini App
 
-A simple Farcaster mini app for minting an NFT. This app is built with Vite, React, TypeScript, and wagmi.
-
-## Overview
-
-This mini app demonstrates how to create a simple NFT minting experience within a Farcaster Frame. It uses:
-
-- Vite for fast development
-- React for UI
-- TypeScript for type safety
-- wagmi for Web3 wallet connections
-- Farcaster Frame SDK for frame integration
+A social dare challenge app built as a Farcaster Mini App. Users can complete daily dares, share their achievements, and see what others have accomplished.
 
 ## Features
 
-- Simple configuration for your own NFT collection
-- Connect Farcaster wallet via Frame
-- Mint an NFT directly in the frame
-- Success and error handling
-- Share functionality
+- 24-hour timer for each dare
+- Media upload support for dare completion proof
+- Social feed of completed dares
+- Integration with Farcaster for user authentication and social features
 
-## Getting Started
+## Development
 
-1. Clone this repository
-2. Install dependencies with `pnpm install`
-3. Start the development server with `pnpm dev`
-4. Open your browser to the URL shown in the terminal
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Start the development server:
+```bash
+npm run dev
+```
+
+3. Build for production:
+```bash
+npm run build
+```
 
 ## Configuration
 
-To configure the mini app for your own NFT collection, edit the `src/config.ts` file. You'll need to set:
+The app requires a few configuration steps:
 
-- Collection name and description
-- Image URL for the NFT
-- Creator details
-- Chain and pricing information
-- Mint timing settings
+1. Update the `.well-known/farcaster.json` file with your domain and image URLs
+2. Set up a backend service to handle media uploads and user data storage
+3. Configure Farcaster authentication
 
-You'll also need to update the contract address and ABI in `src/contracts.ts`.
+## Tech Stack
 
-## Frame Embed
+- React
+- TypeScript
+- Tailwind CSS
+- Farcaster Frame SDK
+- Vite
 
-The Farcaster Frame meta tag is defined in `index.html`. Before deploying your app, update this tag with your actual deployment URL:
+## Contributing
 
-```html
-<head>
-  <!-- other tags -->
-  <meta name="fc:frame" content='{"version":"next","imageUrl":"/placeholder-nft.png","button":{"title":"Open","action":{"type":"launch_frame","name":"NFT Mint","url":"https://your-app-url.com"}}}' /> 
-</head>
-```
-
-If you change your NFT image or name in the config, be sure to update this tag as well to keep them in sync.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

@@ -1,17 +1,16 @@
 {
-  "accountAssociation": {
-    "header": "eyJmaWQiOjM2MjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyY2Q4NWEwOTMyNjFmNTkyNzA4MDRBNkVBNjk3Q2VBNENlQkVjYWZFIn0",
-    "payload": "eyJkb21haW4iOiJtaW50LWRlbW8ucmVwbGl0LmFwcCJ9",
-    "signature": "MHhkYTczYjA4MjQ4NmU5NWRjNTJkMjExNTg4NzVhMzA0ZDg2NzBhYTk4YzlhYjdmNDViZWMwZmQzM2M4ZTU4OTQ5MTgzODllYjllMmQ2M2IyZGFkMDM5NDRiYzAzZDA2YjkyYTcxNjZiMmM2ZDA5YmZlZjFkOThjZGI2MGFhYzc2YTFj"
-  },
+  "name": "Fuse",
+  "description": "Complete daily dares and share your achievements with friends!",
+  "image": "https://fuse.vercel.app/icon.png",
+  "external_url": "https://fuse.vercel.app",
   "frame": {
     "version": "1",
-    "name": "Mint Demo",
-    "iconUrl": "https://mint-demo.replit.app/icon.png",
-    "homeUrl": "https://mint-demo.replit.app/",
-    "imageUrl": "https://mint-demo.replit.app/nft.png",
-    "buttonTitle": "Mint",
-    "splashImageUrl": "https://mint-demo.replit.app/icon.png",
-    "splashBackgroundColor": "#eeccff"
+    "name": "Fuse",
+    "iconUrl": "https://fuse.vercel.app/icon.png",
+    "homeUrl": "https://fuse.vercel.app",
+    "imageUrl": "https://fuse.vercel.app/image.png",
+    "buttonTitle": "Start Challenge",
+    "splashImageUrl": "https://fuse.vercel.app/splash.png",
+    "splashBackgroundColor": "#4C1D95"
   }
 }
