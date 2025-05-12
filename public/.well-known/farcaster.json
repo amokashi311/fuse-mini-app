@@ -3,14 +3,19 @@
   "description": "Complete daily dares and share your achievements with friends!",
   "image": "https://fuse.vercel.app/icon.png",
   "external_url": "https://fuse.vercel.app",
+  "accountAssociation": {
+    "header": "eyJmaWQiOjU0NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2MWQwMEFENzYwNjhGOEQ0NzQwYzM1OEM4QzAzYUFFYjUxMGI1OTBEIn0",
+    "payload": "eyJkb21haW4iOiJmdXNlLW1pbmktYXBwLnZlcmNlbC5hcHAifQ==",
+    "signature": "MHg3NmRkOWVlMjE4OGEyMjliNzExZjUzOTkxYTc1NmEzMGZjNTA3NmE5OTU5OWJmOWFmYjYyMzAyZWQxMWQ2MWFmNTExYzlhYWVjNjQ3OWMzODcyMTI5MzA2YmJhYjdhMTE0MmRhMjA4MmNjNTM5MTJiY2MyMDRhMWFjZTY2NjE5OTFj"
+  },
   "frame": {
     "version": "1",
     "name": "Fuse",
-    "iconUrl": "https://fuse.vercel.app/icon.png",
-    "homeUrl": "https://fuse.vercel.app",
-    "imageUrl": "https://fuse.vercel.app/image.png",
+    "iconUrl": "https://fuse-mini-app.vercel.app/icon.png",
+    "homeUrl": "https://fuse-mini-app.vercel.app",
+    "imageUrl": "https://fuse-mini-app.vercel.app/image.png",
     "buttonTitle": "Start Challenge",
-    "splashImageUrl": "https://fuse.vercel.app/splash.png",
-    "splashBackgroundColor": "#4C1D95"
+    "splashImageUrl": "https://fuse-mini-app.vercel.app/splash.png",
+    "splashBackgroundColor": "#eeccff"
   }
 }
