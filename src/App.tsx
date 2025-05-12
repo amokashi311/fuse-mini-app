@@ -36,16 +36,33 @@ function App() {
   });
   const [isSharing, setIsSharing] = useState(false);
 
+  // Helper to get current date in GMT (YYYY-MM-DD)
+  const getTodayGMT = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  // Helper to get seconds until next GMT midnight
+  const getSecondsUntilNextGMTMidnight = () => {
+    const now = new Date();
+    const nextMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+    return Math.floor((nextMidnight.getTime() - now.getTime()) / 1000);
+  };
+
   useEffect(() => {
     // Call ready when the app is loaded
     sdk.actions.ready();
 
+    // Set initial timer based on GMT
+    setTimeLeft(getSecondsUntilNextGMTMidnight());
+
     // Timer logic
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 0) {
+        if (prev <= 1) {
           clearInterval(timer);
-          return 0;
+          setTimeLeft(getSecondsUntilNextGMTMidnight());
+          return getSecondsUntilNextGMTMidnight();
         }
         return prev - 1;
       });
@@ -81,15 +98,15 @@ function App() {
         profileImageUrl: userData?.pfpUrl || userData?.pfp
       };
 
-      // Reset timer
-      setTimeLeft(24 * 60 * 60);
+      // Reset timer to next GMT midnight
+      setTimeLeft(getSecondsUntilNextGMTMidnight());
 
-      // Update streak
-      const today = new Date().toISOString().split('T')[0];
-      if (streak.lastCompletedDate !== today) {
+      // Update streak based on GMT date
+      const todayGMT = getTodayGMT();
+      if (streak.lastCompletedDate !== todayGMT) {
         const newStreak = {
           count: streak.count + 1,
-          lastCompletedDate: today
+          lastCompletedDate: todayGMT
         };
         setStreak(newStreak);
         setShowStreakAnimation(true);
@@ -148,8 +165,18 @@ function App() {
         {/* Current Dare Section */}
         <div className="bg-black/30 p-6 rounded-xl backdrop-blur-sm">
           <h2 className="text-2xl font-bold mb-4">Today's Dare</h2>
-          <p className="text-xl">{currentDare.text}</p>
-          <DareSubmission onComplete={handleDareComplete} />
+          {streak.lastCompletedDate === getTodayGMT() ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <span className="text-3xl font-bold text-green-400 mb-2">Wohoo! Dare completed for today 🎉</span>
+              <span className="text-lg text-gray-200">Next dare starts in:</span>
+              <span className="text-2xl font-mono mt-2">{formatTime(timeLeft)}</span>
+            </div>
+          ) : (
+            <>
+              <p className="text-xl">{currentDare.text}</p>
+              <DareSubmission onComplete={handleDareComplete} />
+            </>
+          )}
         </div>
 
         {/* Submissions Feed */}
