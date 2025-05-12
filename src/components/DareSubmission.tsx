@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { sdk } from '@farcaster/frame-sdk';
+import React, { useState } from 'react';
 
 interface DareSubmissionProps {
-  onComplete: (mediaUrl: string) => void;
+  onComplete: (imageUrl: string) => void;
 }
 
 export function DareSubmission({ onComplete }: DareSubmissionProps) {

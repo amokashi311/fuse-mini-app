@@ -11,25 +11,15 @@ interface Dare {
 
 interface Submission {
   id: string;
-  userId: string;
-  userName: string;
-  mediaUrl: string;
-  timestamp: number;
+  imageUrl: string;
+  timestamp: string;
+  username: string;
   profileImageUrl?: string;
 }
 
 interface StreakData {
   count: number;
   lastCompletedDate: string;
-}
-
-interface FarcasterUser {
-  fid: string;
-  username: string;
-  displayName: string;
-  pfp: {
-    url: string;
-  };
 }
 
 function App() {
@@ -45,31 +35,10 @@ function App() {
     submissions: []
   });
   const [isSharing, setIsSharing] = useState(false);
-  const [currentUser, setCurrentUser] = useState<FarcasterUser | null>(null);
 
   useEffect(() => {
     // Call ready when the app is loaded
     sdk.actions.ready();
-
-    // Fetch current user's profile
-    const fetchUserProfile = async () => {
-      try {
-        // Get the user's FID (Farcaster ID)
-        const { fid } = await sdk.actions.getUser();
-        
-        // Fetch user profile data from Farcaster API
-        const response = await fetch(`https://api.warpcast.com/v2/user?fid=${fid}`);
-        const data = await response.json();
-        
-        if (data.result?.user) {
-          setCurrentUser(data.result.user);
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
-
-    fetchUserProfile();
 
     // Timer logic
     const timer = setInterval(() => {
@@ -97,53 +66,55 @@ function App() {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleDareComplete = async (mediaUrl: string) => {
-    // Reset timer
-    setTimeLeft(24 * 60 * 60);
-
-    // Update streak
-    const today = new Date().toISOString().split('T')[0];
-    if (streak.lastCompletedDate !== today) {
-      const newStreak = {
-        count: streak.count + 1,
-        lastCompletedDate: today
+  const handleDareComplete = async (imageUrl: string) => {
+    try {
+      // Get user data from Farcaster context
+      const context = await sdk.context;
+      const userData = context.user as { username?: string; pfp?: string };
+      
+      const newSubmission: Submission = {
+        id: Date.now().toString(),
+        imageUrl,
+        timestamp: new Date().toISOString(),
+        username: userData?.username || 'Anonymous',
+        profileImageUrl: userData?.pfp
       };
-      setStreak(newStreak);
-      setShowStreakAnimation(true);
+
+      // Reset timer
+      setTimeLeft(24 * 60 * 60);
+
+      // Update streak
+      const today = new Date().toISOString().split('T')[0];
+      if (streak.lastCompletedDate !== today) {
+        const newStreak = {
+          count: streak.count + 1,
+          lastCompletedDate: today
+        };
+        setStreak(newStreak);
+        setShowStreakAnimation(true);
+      }
+
+      // Add new submission
+      setCurrentDare(prev => ({
+        ...prev,
+        submissions: [newSubmission, ...prev.submissions]
+      }));
+
+      // TODO: Save submission to backend
+    } catch (error) {
+      console.error('Error completing dare:', error);
     }
-
-    // Add new submission
-    const newSubmission: Submission = {
-      id: Date.now().toString(),
-      userId: currentUser?.fid || 'unknown',
-      userName: currentUser?.displayName || 'Anonymous',
-      mediaUrl,
-      timestamp: Date.now(),
-      profileImageUrl: currentUser?.pfp?.url
-    };
-
-    setCurrentDare(prev => ({
-      ...prev,
-      submissions: [newSubmission, ...prev.submissions]
-    }));
-
-    // TODO: Save submission to backend
   };
 
   const handleShare = async (submission: Submission) => {
     try {
       setIsSharing(true);
+      const message = `I completed today's dare: "${currentDare.text}"! 🔥\nStreak: ${streak.count} days\n\nCheck out my proof:`;
       
-      // Create a shareable message
-      const message = `🎯 Just completed today's dare: "${currentDare.text}"\n\n🔥 My streak: ${streak.count} days\n\n#DareChallenge #Farcaster`;
-      
-      // Open the Farcaster composer with pre-filled content
-      await sdk.actions.openUrl({
-        url: `https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.mediaUrl)}`,
-        close: true
-      });
+      // Open Farcaster composer with pre-filled content
+      await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.imageUrl)}`);
     } catch (error) {
-      console.error('Error sharing to Farcaster:', error);
+      console.error('Error sharing:', error);
     } finally {
       setIsSharing(false);
     }
@@ -189,17 +160,17 @@ function App() {
                 <div className="flex items-center gap-3 mb-2">
                   <img 
                     src={submission.profileImageUrl || '/default-avatar.png'} 
-                    alt={`${submission.userName}'s profile`}
+                    alt={`${submission.username}'s profile`}
                     className="w-12 h-12 rounded-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = '/default-avatar.png';
                     }}
                   />
-                  <span className="font-semibold">{submission.userName}</span>
+                  <span className="font-semibold">{submission.username}</span>
                 </div>
                 <img 
-                  src={submission.mediaUrl} 
+                  src={submission.imageUrl} 
                   alt="Submission"
                   className="w-full rounded-lg"
                 />
