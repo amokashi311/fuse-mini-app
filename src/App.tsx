@@ -71,14 +71,14 @@ function App() {
       // Get user data from Farcaster context
       const context = await sdk.context;
       console.log('Farcaster user context:', context.user);
-      const userData = context.user as { username?: string; pfp?: string };
+      const userData = context.user as { username?: string; pfpUrl?: string; pfp?: string };
       
       const newSubmission: Submission = {
         id: Date.now().toString(),
         imageUrl,
         timestamp: new Date().toISOString(),
         username: userData?.username || 'Anonymous',
-        profileImageUrl: userData?.pfp
+        profileImageUrl: userData?.pfpUrl || userData?.pfp
       };
 
       // Reset timer
