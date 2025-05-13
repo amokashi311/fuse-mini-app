@@ -1,6 +1,8 @@
 import { Pool } from 'pg';
 
-export const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }, // Required for Neon
 });
+
+export { pool };
