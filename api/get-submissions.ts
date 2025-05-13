@@ -8,10 +8,12 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   if (!dareId) return res.status(400).json({ error: 'dareId is required' });
   try {
     const result = await sql`
-      SELECT * FROM submissions
-      WHERE dare_id = ${dareId}
-      ORDER BY timestamp DESC
-      LIMIT 10
+      SELECT s.*, u.username, u.profile_image_url
+      FROM submissions s
+      JOIN users u ON s.user_id = u.fid
+      WHERE s.dare_id = ${dareId}
+      ORDER BY s.timestamp DESC
+      LIMIT 25
     `;
     res.status(200).json(result);
   } catch (err) {
