@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { pool } from './lib/db.ts';
+import { pool } from './db.ts';
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   // Simple rotation: pick a dare based on the day number
