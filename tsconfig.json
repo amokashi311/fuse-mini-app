@@ -20,10 +20,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "types": ["react", "react-dom"],
+    "types": ["react", "react-dom", "node"],
     "allowJs": true,
     "esModuleInterop": true
   },
-  "include": ["src"],
+  "include": ["src", "api"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
