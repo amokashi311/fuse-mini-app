@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface DareSubmissionProps {
   onComplete: (imageUrl: string) => void;
+  uploadToS3: (file: File) => Promise<string>;
 }
 
-export function DareSubmission({ onComplete }: DareSubmissionProps) {
+export function DareSubmission({ onComplete, uploadToS3 }: DareSubmissionProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -16,12 +17,9 @@ export function DareSubmission({ onComplete }: DareSubmissionProps) {
       setIsUploading(true);
       setError(undefined);
 
-      // TODO: Implement actual file upload to your preferred storage service
-      // For now, we'll simulate a successful upload
-      const mockMediaUrl = URL.createObjectURL(file);
-      
-      // Reset timer and update submission
-      await onComplete(mockMediaUrl);
+      // Upload to S3 and get the public URL
+      const s3Url = await uploadToS3(file);
+      await onComplete(s3Url);
     } catch (err) {
       setError('Failed to upload media. Please try again.');
       console.error('Upload error:', err);

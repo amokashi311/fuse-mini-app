@@ -147,6 +147,27 @@ function App() {
     }
   };
 
+  async function uploadToS3(file: File) {
+    // 1. Get presigned URL
+    const res = await fetch('/api/s3-presign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+    });
+    const { url } = await res.json();
+
+    // 2. Upload file to S3
+    await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+
+    // 3. The public URL will be:
+    const s3Url = url.split('?')[0];
+    return s3Url;
+  }
+
   if (loading || !currentDare) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black text-white">
@@ -189,7 +210,7 @@ function App() {
           ) : (
             <>
               <p className="text-xl">{currentDare.text}</p>
-              <DareSubmission onComplete={handleDareComplete} />
+              <DareSubmission onComplete={handleDareComplete} uploadToS3={uploadToS3} />
             </>
           )}
         </div>
