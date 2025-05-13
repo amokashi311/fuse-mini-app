@@ -12,8 +12,11 @@ interface Submission {
   id: string;
   imageUrl: string;
   timestamp: string;
-  username: string;
-  profileImageUrl?: string;
+  streak: number;
+  dare_id?: string;
+  user_id?: string;
+  profile_image_url?: string;
+  username?: string;
 }
 
 interface StreakData {
@@ -222,7 +225,7 @@ function App() {
               <div key={submission.id} className="bg-black/20 p-4 rounded-lg">
                 <div className="flex items-center gap-3 mb-2">
                   <img
-                    src={submission.profileImageUrl || '/default-avatar.png'}
+                    src={submission.profile_image_url}
                     alt={`${submission.username}'s profile`}
                     className="w-12 h-12 rounded-full object-cover"
                     onError={(e) => {
