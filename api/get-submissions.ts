@@ -4,8 +4,15 @@ import { neon } from '@neondatabase/serverless';
 const sql = neon(process.env.DATABASE_URL!);
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
+  const { dareId } = _req.query;
+  if (!dareId) return res.status(400).json({ error: 'dareId is required' });
   try {
-    const result = await sql`SELECT * FROM submissions ORDER BY timestamp DESC LIMIT 10`;
+    const result = await sql`
+      SELECT * FROM submissions
+      WHERE dare_id = ${dareId}
+      ORDER BY timestamp DESC
+      LIMIT 10
+    `;
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ error: 'Database error', details: err });
