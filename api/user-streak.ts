@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { pool } from './db.ts';
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {
@@ -8,23 +10,15 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
 
     if (_req.method === 'POST') {
       const { streak, lastCompletedDate } = _req.body;
-      await pool.query(
-        'UPDATE user_streaks SET streak = $1, last_completed_date = $2 WHERE fid = $3',
-        [streak, lastCompletedDate, fid]
-      );
+      await sql`UPDATE user_streaks SET streak = ${streak}, last_completed_date = ${lastCompletedDate} WHERE fid = ${fid}`;
       return res.status(200).json({ success: true });
     }
 
-    const { rows } = await pool.query(
-      'SELECT streak, last_completed_date FROM user_streaks WHERE fid = $1',
-      [fid]
-    );
-    
-    if (rows.length === 0) {
+    const result = await sql`SELECT streak, last_completed_date FROM user_streaks WHERE fid = ${fid}`;
+    if (result.length === 0) {
       return res.status(200).json({ streak: 0, last_completed_date: null });
     }
-    
-    res.status(200).json(rows[0]);
+    res.status(200).json(result[0]);
   } catch (err) {
     res.status(500).json({ error: 'Database error', details: err });
   }

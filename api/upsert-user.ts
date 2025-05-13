@@ -1,20 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { pool } from './db.ts';
+import { neon } from '@neondatabase/serverless';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
+const sql = neon(process.env.DATABASE_URL!);
 
-  const { fid, username, displayName, profileImageUrl } = req.body;
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
+  if (_req.method !== 'POST') return res.status(405).end();
 
   try {
-    const result = await pool.query(
-      `INSERT INTO users (fid, username, display_name, profile_image_url)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (fid) DO UPDATE SET username = $2, display_name = $3, profile_image_url = $4
-       RETURNING *`,
-      [fid, username, displayName, profileImageUrl]
-    );
-    res.status(200).json(result.rows[0]);
+    const { fid, username, displayName, profileImageUrl } = _req.body;
+    await sql`
+      INSERT INTO users (fid, username, display_name, profile_image_url)
+      VALUES (${fid}, ${username}, ${displayName}, ${profileImageUrl})
+      ON CONFLICT (fid) DO UPDATE SET
+        username = EXCLUDED.username,
+        display_name = EXCLUDED.display_name,
+        profile_image_url = EXCLUDED.profile_image_url
+    `;
+    res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Database error', details: err });
   }
