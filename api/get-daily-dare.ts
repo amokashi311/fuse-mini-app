@@ -1,9 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { pool } from './lib/db';
+import { pool } from './lib/db.ts';
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   // Simple rotation: pick a dare based on the day number
   try {
+    console.log('DATABASE_URL:', process.env.DATABASE_URL);
     const { rows } = await pool.query('SELECT * FROM dares WHERE is_active = TRUE ORDER BY id');
     if (rows.length === 0) return res.status(404).json({ error: 'No active dares' });
 

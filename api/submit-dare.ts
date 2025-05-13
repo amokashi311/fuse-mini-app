@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { pool } from './lib/db';
+import { pool } from './lib/db.ts';
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   if (_req.method !== 'POST') return res.status(405).end();
