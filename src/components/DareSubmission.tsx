@@ -21,7 +21,7 @@ export function DareSubmission({ onComplete }: DareSubmissionProps) {
       const mockMediaUrl = URL.createObjectURL(file);
       
       // Reset timer and update submission
-      onComplete(mockMediaUrl);
+      await onComplete(mockMediaUrl);
     } catch (err) {
       setError('Failed to upload media. Please try again.');
       console.error('Upload error:', err);

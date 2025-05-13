@@ -6,7 +6,6 @@ import { StreakAnimation } from './components/StreakAnimation';
 interface Dare {
   id: string;
   text: string;
-  submissions: Submission[];
 }
 
 interface Submission {
@@ -24,17 +23,13 @@ interface StreakData {
 
 function App() {
   const [timeLeft, setTimeLeft] = useState(24 * 60 * 60); // 24 hours in seconds
-  const [streak, setStreak] = useState<StreakData>(() => {
-    const savedStreak = localStorage.getItem('dareStreak');
-    return savedStreak ? JSON.parse(savedStreak) : { count: 0, lastCompletedDate: '' };
-  });
+  const [streak, setStreak] = useState<StreakData>({ count: 0, lastCompletedDate: '' });
   const [showStreakAnimation, setShowStreakAnimation] = useState(false);
-  const [currentDare, setCurrentDare] = useState<Dare>({
-    id: '1',
-    text: 'Take a selfie with a stranger and share a fun fact about yourself!',
-    submissions: []
-  });
+  const [currentDare, setCurrentDare] = useState<Dare | null>(null);
   const [isSharing, setIsSharing] = useState(false);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // Helper to get current date in GMT (YYYY-MM-DD)
   const getTodayGMT = () => {
@@ -50,13 +45,8 @@ function App() {
   };
 
   useEffect(() => {
-    // Call ready when the app is loaded
     sdk.actions.ready();
-
-    // Set initial timer based on GMT
     setTimeLeft(getSecondsUntilNextGMTMidnight());
-
-    // Timer logic
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -67,14 +57,34 @@ function App() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
-  // Save streak to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('dareStreak', JSON.stringify(streak));
-  }, [streak]);
+    async function fetchAll() {
+      setLoading(true);
+      // Get user context
+      const context = await sdk.context;
+      setUserData(context.user);
+      // Get daily dare
+      const dareRes = await fetch('/api/get-daily-dare');
+      const dare = await dareRes.json();
+      setCurrentDare(dare);
+      // Get submissions
+      const subRes = await fetch(`/api/get-submissions?dareId=${dare.id}`);
+      setSubmissions(await subRes.json());
+      // Get streak
+      if (context.user?.fid) {
+        const streakRes = await fetch(`/api/user-streak?fid=${context.user.fid}`);
+        if (streakRes.ok) {
+          const data = await streakRes.json();
+          setStreak({ count: data.streak, lastCompletedDate: data.last_completed_date });
+        }
+      }
+      setLoading(false);
+    }
+    fetchAll();
+  }, []);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -83,53 +93,53 @@ function App() {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Only one handleDareComplete
   const handleDareComplete = async (imageUrl: string) => {
-    try {
-      // Get user data from Farcaster context
-      const context = await sdk.context;
-      console.log('Farcaster user context:', context.user);
-      const userData = context.user as { username?: string; pfpUrl?: string; pfp?: string };
-      
-      const newSubmission: Submission = {
-        id: Date.now().toString(),
+    if (!userData || !currentDare) return;
+    // 1. Upsert user
+    await fetch('/api/upsert-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fid: userData.fid,
+        username: userData.username,
+        displayName: userData.displayName,
+        profileImageUrl: userData.pfpUrl || userData.pfp,
+      }),
+    });
+    // 2. Submit dare
+    await fetch('/api/submit-dare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fid: userData.fid,
+        dareId: currentDare.id,
         imageUrl,
+        streak: streak.count + 1,
         timestamp: new Date().toISOString(),
-        username: userData?.username || 'Anonymous',
-        profileImageUrl: userData?.pfpUrl || userData?.pfp
-      };
-
-      // Reset timer to next GMT midnight
-      setTimeLeft(getSecondsUntilNextGMTMidnight());
-
-      // Update streak based on GMT date
-      const todayGMT = getTodayGMT();
-      if (streak.lastCompletedDate !== todayGMT) {
-        const newStreak = {
-          count: streak.count + 1,
-          lastCompletedDate: todayGMT
-        };
-        setStreak(newStreak);
-        setShowStreakAnimation(true);
-      }
-
-      // Add new submission
-      setCurrentDare(prev => ({
-        ...prev,
-        submissions: [newSubmission, ...prev.submissions]
-      }));
-
-      // TODO: Save submission to backend
-    } catch (error) {
-      console.error('Error completing dare:', error);
-    }
+      }),
+    });
+    // 3. Update streak
+    await fetch(`/api/user-streak?fid=${userData.fid}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        streak: streak.count + 1,
+        lastCompletedDate: getTodayGMT(),
+      }),
+    });
+    // 4. Refresh submissions and streak
+    const subRes = await fetch(`/api/get-submissions?dareId=${currentDare.id}`);
+    setSubmissions(await subRes.json());
+    setStreak({ count: streak.count + 1, lastCompletedDate: getTodayGMT() });
+    setShowStreakAnimation(true);
+    setTimeLeft(getSecondsUntilNextGMTMidnight());
   };
 
   const handleShare = async (submission: Submission) => {
     try {
       setIsSharing(true);
-      const message = `I completed today's dare on Fuse: "${currentDare.text}"! 🔥\nIm on a ${streak.count} days streak: \n\n Check out my proof:`;
-      
-      // Open Farcaster composer with pre-filled content
+      const message = `I completed today's dare on Fuse: "${currentDare?.text}"! 🔥\nI'm on a ${streak.count} days streak!\n\nCheck out my proof:`;
       await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.imageUrl)}`);
     } catch (error) {
       console.error('Error sharing:', error);
@@ -137,6 +147,14 @@ function App() {
       setIsSharing(false);
     }
   };
+
+  if (loading || !currentDare) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black text-white">
+        <span className="text-2xl">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4">
@@ -155,13 +173,11 @@ function App() {
             {streak.lastCompletedDate ? `Last completed: ${new Date(streak.lastCompletedDate).toLocaleDateString()}` : 'No dares completed yet'}
           </p>
         </div>
-
         {/* Timer Section */}
         <div className="bg-black/30 p-6 rounded-xl backdrop-blur-sm">
           <h2 className="text-2xl font-bold mb-2">Time Remaining</h2>
           <div className="text-4xl font-mono">{formatTime(timeLeft)}</div>
         </div>
-
         {/* Current Dare Section */}
         <div className="bg-black/30 p-6 rounded-xl backdrop-blur-sm">
           <h2 className="text-2xl font-bold mb-4">Today's Dare</h2>
@@ -178,16 +194,15 @@ function App() {
             </>
           )}
         </div>
-
         {/* Submissions Feed */}
         <div className="bg-black/30 p-6 rounded-xl backdrop-blur-sm">
           <h2 className="text-2xl font-bold mb-4">Recent Submissions</h2>
           <div className="space-y-4">
-            {currentDare.submissions.map((submission) => (
+            {submissions.map((submission) => (
               <div key={submission.id} className="bg-black/20 p-4 rounded-lg">
                 <div className="flex items-center gap-3 mb-2">
-                  <img 
-                    src={submission.profileImageUrl || '/default-avatar.png'} 
+                  <img
+                    src={submission.profileImageUrl || '/default-avatar.png'}
                     alt={`${submission.username}'s profile`}
                     className="w-12 h-12 rounded-full object-cover"
                     onError={(e) => {
@@ -197,8 +212,8 @@ function App() {
                   />
                   <span className="font-semibold">{submission.username}</span>
                 </div>
-                <img 
-                  src={submission.imageUrl} 
+                <img
+                  src={submission.imageUrl}
                   alt="Submission"
                   className="w-full rounded-lg"
                 />
