@@ -20,7 +20,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     Bucket: BUCKET,
     Key: fileName,
     ContentType: fileType,
-    ACL: 'public-read', // Optional: for public access
   });
 
   const url = await getSignedUrl(s3, command, { expiresIn: 60 }); // 1 min expiry
