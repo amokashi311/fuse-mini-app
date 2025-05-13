@@ -7,15 +7,14 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   if (_req.method !== 'POST') return res.status(405).end();
 
   try {
-    const { fid, dareId, imageUrl, streak, timestamp, username, displayName, profileImageUrl } = _req.body;
+    const { fid, dareId, imageUrl, streak, timestamp, username, profileImageUrl } = _req.body;
 
     // Upsert the user
     await sql`
-      INSERT INTO users (fid, username, display_name, profile_image_url)
-      VALUES (${fid}, ${username}, ${displayName}, ${profileImageUrl})
+      INSERT INTO users (fid, username, profile_image_url)
+      VALUES (${fid}, ${username}, ${profileImageUrl})
       ON CONFLICT (fid) DO UPDATE SET
         username = EXCLUDED.username,
-        display_name = EXCLUDED.display_name,
         profile_image_url = EXCLUDED.profile_image_url
     `;
 
