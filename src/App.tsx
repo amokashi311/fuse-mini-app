@@ -103,7 +103,6 @@ function App() {
       body: JSON.stringify({
         fid: userData.fid,
         username: userData.username,
-        displayName: userData.displayName,
         profileImageUrl: userData.pfpUrl || userData.pfp,
       }),
     });
