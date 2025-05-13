@@ -7,8 +7,13 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   if (_req.method !== 'POST') return res.status(405).end();
 
   try {
-    const { fid, dareId, imageUrl, streak, timestamp } = _req.body;
+    const { fid, dareId, imageUrl, streak, timestamp, username, displayName, profileImageUrl } = _req.body;
     // Insert submission
+    await sql`
+      INSERT INTO users (fid, username, display_name, profile_image_url)
+      VALUES (${fid}, ${username}, ${displayName}, ${profileImageUrl})
+      ON CONFLICT (fid) DO NOTHING
+    `;
     const result = await sql`
       INSERT INTO submissions (user_id, dare_id, image_url, streak, timestamp)
       VALUES (${fid}, ${dareId}, ${imageUrl}, ${streak}, ${timestamp})

@@ -10,7 +10,11 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
 
     if (_req.method === 'POST') {
       const { streak, lastCompletedDate } = _req.body;
-      await sql`UPDATE user_streaks SET streak = ${streak}, last_completed_date = ${lastCompletedDate} WHERE fid = ${fid}`;
+      await sql`
+        INSERT INTO user_streaks (fid, streak, last_completed_date)
+        VALUES (${fid}, ${streak}, ${lastCompletedDate})
+        ON CONFLICT (fid) DO NOTHING
+      `;
       return res.status(200).json({ success: true });
     }
 
