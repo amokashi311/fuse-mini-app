@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { pool } from '../src/lib/db';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
   // Simple rotation: pick a dare based on the day number
   try {
     const { rows } = await pool.query('SELECT * FROM dares WHERE is_active = TRUE ORDER BY id');
