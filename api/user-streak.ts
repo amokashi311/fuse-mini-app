@@ -13,7 +13,9 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       await sql`
         INSERT INTO user_streaks (fid, streak, last_completed_date)
         VALUES (${fid}, ${streak}, ${lastCompletedDate})
-        ON CONFLICT (fid) DO NOTHING
+        ON CONFLICT (fid) DO UPDATE SET
+          streak = EXCLUDED.streak,
+          last_completed_date = EXCLUDED.last_completed_date
       `;
       return res.status(200).json({ success: true });
     }
