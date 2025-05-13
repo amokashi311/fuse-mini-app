@@ -11,9 +11,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     await sql`
       INSERT INTO users (fid, username, profile_image_url)
       VALUES (${fid}, ${username}, ${profileImageUrl})
-      ON CONFLICT (fid) DO UPDATE SET
-        username = EXCLUDED.username,
-        profile_image_url = EXCLUDED.profile_image_url
+      ON CONFLICT (fid) DO NOTHING
     `;
     res.status(200).json({ success: true });
   } catch (err) {
