@@ -11,7 +11,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     if (_req.method === 'POST') {
       const { streak, lastCompletedDate } = _req.body;
       await sql`
-        INSERT INTO user_streaks (fid, streak, last_completed_date)
+        INSERT INTO user_streaks (user_id, streak, last_completed_date)
         VALUES (${fid}, ${streak}, ${lastCompletedDate})
         ON CONFLICT (fid) DO UPDATE SET
           streak = EXCLUDED.streak,

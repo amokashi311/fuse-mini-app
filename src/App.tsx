@@ -10,7 +10,7 @@ interface Dare {
 
 interface Submission {
   id: string;
-  imageUrl: string;
+  image_url: string;
   timestamp: string;
   streak: number;
   dare_id?: string;
@@ -142,7 +142,7 @@ function App() {
     try {
       setIsSharing(true);
       const message = `I completed today's dare on Fuse: "${currentDare?.text}"! 🔥\nI'm on a ${streak.count} days streak!\n\nCheck out my proof:`;
-      await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.imageUrl)}`);
+      await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.image_url)}`);
     } catch (error) {
       console.error('Error sharing:', error);
     } finally {
@@ -209,6 +209,37 @@ function App() {
               <span className="text-3xl font-bold text-green-400 mb-2">Wohoo! Dare completed for today 🎉</span>
               <span className="text-lg text-gray-200">Next dare starts in:</span>
               <span className="text-2xl font-mono mt-2">{formatTime(timeLeft)}</span>
+              {/* Share button for today's submission */}
+              {(() => {
+                const todaysSubmission = submissions.find(
+                  (s) => s.timestamp && new Date(s.timestamp).toISOString().split('T')[0] === getTodayGMT() && s.username === userData?.username
+                );
+                if (!todaysSubmission) return null;
+                return (
+                  <button
+                    onClick={() => handleShare(todaysSubmission)}
+                    disabled={isSharing}
+                    className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isSharing ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Sharing...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z" />
+                        </svg>
+                        Share your submission to Farcaster
+                      </>
+                    )}
+                  </button>
+                );
+              })()}
             </div>
           ) : (
             <>
@@ -236,7 +267,7 @@ function App() {
                   <span className="font-semibold">{submission.username}</span>
                 </div>
                 <img
-                  src={submission.imageUrl}
+                  src={submission.image_url}
                   alt="Submission"
                   className="w-full rounded-lg"
                 />
