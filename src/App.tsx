@@ -127,7 +127,7 @@ function App() {
   const handleShare = async (submission: Submission) => {
     try {
       setIsSharing(true);
-      const message = `I completed today's dare: "${currentDare.text}"! 🔥\nStreak: ${streak.count} days\n\nCheck out my proof:`;
+      const message = `I completed today's dare on Fuse: "${currentDare.text}"! 🔥\nIm on a ${streak.count} days streak: \n\n Check out my proof:`;
       
       // Open Farcaster composer with pre-filled content
       await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(submission.imageUrl)}`);
