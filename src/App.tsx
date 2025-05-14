@@ -171,6 +171,13 @@ function App() {
     return s3Url;
   }
 
+  const todaysSubmission = submissions.find(
+    (s) =>
+      s.timestamp &&
+      new Date(s.timestamp).toISOString().split('T')[0] === getTodayGMT() &&
+      s.username === userData?.username // or use fid if more reliable
+  );
+
   if (loading || !currentDare) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-black text-white">
@@ -209,17 +216,18 @@ function App() {
               <span className="text-3xl font-bold text-green-400 mb-2">Wohoo! Dare completed for today 🎉</span>
               <span className="text-lg text-gray-200">Next dare starts in:</span>
               <span className="text-2xl font-mono mt-2">{formatTime(timeLeft)}</span>
-              {/* Share button for today's submission */}
-              {(() => {
-                const todaysSubmission = submissions.find(
-                  (s) => s.timestamp && new Date(s.timestamp).toISOString().split('T')[0] === getTodayGMT() && s.username === userData?.username
-                );
-                if (!todaysSubmission) return null;
-                return (
+              {/* Show preview and share button if user has submitted today */}
+              {todaysSubmission && (
+                <div className="flex flex-col items-center mt-6 w-full">
+                  <img
+                    src={todaysSubmission.image_url}
+                    alt="Your submission for today"
+                    className="w-full max-w-xs rounded-lg mb-4"
+                  />
                   <button
                     onClick={() => handleShare(todaysSubmission)}
                     disabled={isSharing}
-                    className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSharing ? (
                       <>
@@ -238,8 +246,8 @@ function App() {
                       </>
                     )}
                   </button>
-                );
-              })()}
+                </div>
+              )}
             </div>
           ) : (
             <>
