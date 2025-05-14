@@ -13,14 +13,14 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       await sql`
         INSERT INTO user_streaks (user_id, streak, last_completed_date)
         VALUES (${fid}, ${streak}, ${lastCompletedDate})
-        ON CONFLICT (fid) DO UPDATE SET
+        ON CONFLICT (user_id) DO UPDATE SET
           streak = EXCLUDED.streak,
           last_completed_date = EXCLUDED.last_completed_date
       `;
       return res.status(200).json({ success: true });
     }
 
-    const result = await sql`SELECT streak, last_completed_date FROM user_streaks WHERE fid = ${fid}`;
+    const result = await sql`SELECT streak, last_completed_date FROM user_streaks WHERE user_id = ${fid}`;
     if (result.length === 0) {
       return res.status(200).json({ streak: 0, last_completed_date: null });
     }
