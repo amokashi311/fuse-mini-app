@@ -13,6 +13,13 @@ export function DareSubmission({ onComplete, uploadToS3 }: DareSubmissionProps) 
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // File size restriction: 3MB
+    const maxSize = 3 * 1024 * 1024; // 3MB in bytes
+    if (file.size > maxSize) {
+      setError('File size must be less than 3MB.');
+      return;
+    }
+
     try {
       setIsUploading(true);
       setError(undefined);
