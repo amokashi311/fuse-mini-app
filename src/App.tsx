@@ -173,8 +173,6 @@ function App() {
 
   const todaysSubmission = submissions.find(
     (s) =>
-      s.timestamp &&
-      new Date(s.timestamp).toISOString().split('T')[0] === getTodayGMT() &&
       s.username === userData?.username // or use fid if more reliable
   );
 
