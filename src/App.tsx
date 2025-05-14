@@ -144,7 +144,7 @@ function App() {
       setIsSharing(true);
       const message = `I completed today's dare on Fuse: "${currentDare?.text}"! 🔥\nI'm on a ${streak.count} days streak!\n\nCheck out my proof:`;
       // Create a frame-compatible share that links back to the mini-app
-      const frameUrl = `${window.location.origin}?submission=${submission.id}`;
+      const frameUrl = `${window.location.origin}/frame/${submission.id}`;
       await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(message)}&embeds[]=${encodeURIComponent(frameUrl)}`);
     } catch (error) {
       console.error('Error sharing:', error);
